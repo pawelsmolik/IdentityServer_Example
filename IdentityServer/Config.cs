@@ -12,7 +12,6 @@ namespace IdentityServer
         public static IEnumerable<ApiScope> ApiScopes =>
             new List<ApiScope>
             {
-                new ApiScope("HouseManagementApi", "House Management"),
                 new ApiScope("WebApiExampleApp", "Test Api", userClaims: new[] { "Role", "name" }),
                 new ApiScope(IdentityServerConstants.StandardScopes.OpenId),
                 new ApiScope(IdentityServerConstants.StandardScopes.Profile),
