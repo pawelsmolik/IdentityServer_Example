@@ -63,14 +63,14 @@ namespace IdentityServer
                         IdentityServerConstants.StandardScopes.Email,
                         "WebApiExampleApp",
                     },
-                    AllowedCorsOrigins = new List<string>(){ 
-                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
+                    AllowedCorsOrigins = new List<string>(){
+                        "https://angularexamplefront.azurewebsites.net", "http://localhost:4200"
                     },
                     RedirectUris = new List<string>{
-                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
+                        "https://angularexamplefront.azurewebsites.net", "http://localhost:4200"
                     },
                     PostLogoutRedirectUris = new List<string>{
-                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
+                        "https://angularexamplefront.azurewebsites.net", "http://localhost:4200"
                     },
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
