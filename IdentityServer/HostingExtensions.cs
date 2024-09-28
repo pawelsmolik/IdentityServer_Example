@@ -2,6 +2,7 @@
 using Duende.IdentityServer.EntityFramework.Mappers;
 using IdentityServer.Models.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -65,13 +66,16 @@ namespace IdentityServer
             app.UseStaticFiles();
             app.UseRouting();
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto
+            });
+
             //
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            app.UseHsts();
-            app.UseHttpsRedirection();
             /*
             app.UseCookiePolicy(new CookiePolicyOptions
             {
