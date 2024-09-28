@@ -64,13 +64,13 @@ namespace IdentityServer
                         "WebApiExampleApp",
                     },
                     AllowedCorsOrigins = new List<string>(){ 
-                        "http://localhost:4200"
+                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
                     },
                     RedirectUris = new List<string>{
-                        "http://localhost:4200"
+                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
                     },
                     PostLogoutRedirectUris = new List<string>{
-                        "http://localhost:4200"
+                        "http://localhost:4200", "https://angularexamplefront.azurewebsites.net"
                     },
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     RefreshTokenExpiration = TokenExpiration.Sliding,
