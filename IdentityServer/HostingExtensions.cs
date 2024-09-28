@@ -1,25 +1,20 @@
 ﻿using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
+using IdentityServer.Models.Settings;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace IdentityServer
 {
     internal static class HostingExtensions
     {
-        public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
+        public static WebApplication ConfigureServices(this WebApplicationBuilder builder, ConfigurationManager configuration, IOptions<AppSettings> appSettings)
         {
             var migrationsAssembly = typeof(Program).Assembly.GetName().Name;
             SqlConnection conn = new SqlConnection(
-                new SqlConnectionStringBuilder()
-                {
-                    DataSource = ".",
-                    InitialCatalog = "IdentityServer",
-                    UserID = "sa",
-                    Password = "1qaz@WSX",
-                    TrustServerCertificate = true
-                }.ConnectionString
+                configuration.GetConnectionString("DefaultConnection")
             );
 
             // uncomment if you want to add a UI
@@ -28,7 +23,7 @@ namespace IdentityServer
                 //.AddInMemoryApiScopes(Config.ApiScopes)
                 //.AddInMemoryClients(Config.Clients)
                 //.AddInMemoryApiResources(Config.GetApiResource)
-                .AddTestUsers(Config.Users)
+                .AddTestUsers(Config.Users(appSettings))
                 .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(conn,
@@ -56,7 +51,7 @@ namespace IdentityServer
             return builder.Build();
         }
 
-        public static WebApplication ConfigurePipeline(this WebApplication app)
+        public static WebApplication ConfigurePipeline(this WebApplication app, IOptions<AppSettings> appSettings)
         {
             if (app.Environment.IsDevelopment())
             {
@@ -86,12 +81,12 @@ namespace IdentityServer
             
             app.MapRazorPages().RequireAuthorization();
 
-            InitializeDatabase(app);
+            InitializeDatabase(app, appSettings);
 
             return app;
         }
 
-        private static void InitializeDatabase(IApplicationBuilder app)
+        private static void InitializeDatabase(IApplicationBuilder app, IOptions<AppSettings> appSettings)
         {
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()!.CreateScope())
             {
@@ -129,7 +124,7 @@ namespace IdentityServer
 
                 if (!context.ApiResources.Any())
                 {
-                    foreach (var resource in Config.GetApiResource)
+                    foreach (var resource in Config.GetApiResource(appSettings))
                     {
                         context.ApiResources.Add(resource.ToEntity());
                     }

@@ -4,6 +4,8 @@ using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Test;
+using IdentityServer.Models.Settings;
+using Microsoft.Extensions.Options;
 
 namespace IdentityServer
 {
@@ -18,15 +20,15 @@ namespace IdentityServer
                 new ApiScope(IdentityServerConstants.StandardScopes.Email)
             };
 
-        public static IEnumerable<ApiResource> GetApiResource => new ApiResource[] {
+        public static IEnumerable<ApiResource> GetApiResource(IOptions<AppSettings> appSettings) => new ApiResource[] {
 
-            new ApiResource("WebApiExample"){ 
+            new ApiResource("WebApiExample"){
                 Scopes = new List<string> {
                     "WebApiExampleApp"
                 },
-                ApiSecrets = { 
-                    new Secret{ 
-                        Value = "ABC123".Sha256(),
+                ApiSecrets = {
+                    new Secret{
+                        Value = appSettings.Value.WebApiSecret.Sha256(),
                         Type = "SharedSecret"
                     }
                 }
@@ -37,7 +39,7 @@ namespace IdentityServer
                 },
                 ApiSecrets = {
                     new Secret{
-                        Value = "ABC123".Sha256(),
+                        Value = appSettings.Value.ReverseProxySecret.Sha256(),
                         Type = "SharedSecret"
                     }
                 }
@@ -78,14 +80,14 @@ namespace IdentityServer
                 }
             };
 
-        public static List<TestUser> Users =>
+        public static List<TestUser> Users(IOptions<AppSettings> appSettings) =>
             new List<TestUser>
             {
                 new TestUser
                 {
                     SubjectId = "1",
                     Username = "bob",
-                    Password = "bob",
+                    Password = appSettings.Value.Users.Find(a => a.Name == "bob")?.Password,
                     Claims = new List<Claim>(){ 
                     },
                     
@@ -94,7 +96,7 @@ namespace IdentityServer
                 {
                     SubjectId = "2",
                     Username = "pawel",
-                    Password = "pawel",
+                    Password = appSettings.Value.Users.Find(a => a.Name == "pawel")?.Password,
                     Claims = new List<Claim>(){ 
                         new Claim("Role", "Admin")
                     }
@@ -104,6 +106,12 @@ namespace IdentityServer
 
     public sealed class CustomProfileService : IProfileService
     {
+        IOptions<AppSettings> _appSettings;
+        public CustomProfileService(IOptions<AppSettings> appSettings)
+        {
+            _appSettings = appSettings;
+        }
+
         public Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             if (context.RequestedClaimTypes.Any())
@@ -112,7 +120,7 @@ namespace IdentityServer
                     new Claim("name", context.Subject.Identity?.Name ?? string.Empty)
                 });
 
-                var user = Config.Users.First(a => a.SubjectId == context.Subject.GetSubjectId());
+                var user = Config.Users(_appSettings).First(a => a.SubjectId == context.Subject.GetSubjectId());
                 context.IssuedClaims.AddRange(user.Claims);
             }
 
