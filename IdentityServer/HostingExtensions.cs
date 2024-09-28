@@ -69,6 +69,9 @@ namespace IdentityServer
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
+
+            app.UseHsts();
+            app.UseHttpsRedirection();
             /*
             app.UseCookiePolicy(new CookiePolicyOptions
             {
@@ -78,7 +81,7 @@ namespace IdentityServer
             */
 
             // uncomment if you want to add a UI
-            
+
             app.MapRazorPages().RequireAuthorization();
 
             InitializeDatabase(app, appSettings);
